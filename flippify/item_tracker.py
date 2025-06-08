@@ -1,6 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, messagebox, filedialog
-import pandas as pd
+from tkinter import ttk, messagebox
 from datetime import datetime
 from database import DatabaseManager
 
@@ -8,109 +7,93 @@ class ItemTracker(ttk.Frame):
     def __init__(self, parent):
         super().__init__(parent)
         self.db = DatabaseManager()
+        self.configure(padding=20)
+        self.build_ui()
+
+    def build_ui(self):
+        ttk.Label(self, text="📦 Item Tracker", font=("Segoe UI", 20, "bold")).pack(pady=(10, 20))
+
+        form = ttk.LabelFrame(self, text="Add New Item", padding=15)
+        form.pack(fill="x", padx=10, pady=10)
+
         self.name_var = tk.StringVar()
         self.source_var = tk.StringVar()
         self.sold_var = tk.StringVar()
-        self.date_var = tk.StringVar()
+        self.date_var = tk.StringVar(value=datetime.today().strftime("%Y-%m-%d"))
 
-        self.build_ui()
+        fields = [
+            ("Item Name", self.name_var),
+            ("Source Price (₱)", self.source_var),
+            ("Sold Price (₱)", self.sold_var),
+            ("Date (YYYY-MM-DD)", self.date_var),
+        ]
+
+        for label, var in fields:
+            row = ttk.Frame(form)
+            row.pack(pady=5)
+            ttk.Label(row, text=label, width=20).pack(side="left")
+            ttk.Entry(row, textvariable=var, width=25).pack(side="left")
+
+
+
+        button_frame = ttk.Frame(form)
+        button_frame.pack(pady=10)
+        ttk.Button(button_frame, text="➕ Add Item", command=self.add_item, width=20).pack(side="left", padx=5)
+        ttk.Button(button_frame, text="🧹 Clear", command=self.clear_form, width=10).pack(side="left", padx=5)
+
+        self.list_frame = ttk.LabelFrame(self, text="Sold Inventory", padding=10)
+        self.list_frame.pack(fill="both", expand=True, padx=10, pady=10)
         self.load_items()
-
-    def build_ui(self):
-        ttk.Label(self, text="📦 Item Tracker", font=("Segoe UI", 18)).pack(pady=(10, 20))
-        form_frame = ttk.Frame(self)
-        form_frame.pack(pady=10)
-
-        labels = ["Item Name", "Source Price", "Sold Price", "Date Sold (YYYY-MM-DD)"]
-        vars = [self.name_var, self.source_var, self.sold_var, self.date_var]
-
-        for i, (label, var) in enumerate(zip(labels, vars)):
-            ttk.Label(form_frame, text=label).grid(row=i*2, column=0, columnspan=2, sticky="w", pady=(0, 2))
-            ttk.Entry(form_frame, textvariable=var, width=40).grid(row=i*2+1, column=0, columnspan=2, pady=(0, 10))
-
-        button_frame = ttk.Frame(form_frame)
-        button_frame.grid(row=8, column=0, columnspan=2, pady=(10, 0))
-
-        ttk.Button(button_frame, text="➕ Add Item", command=self.add_item, width=30).pack(pady=2)
-        ttk.Button(button_frame, text="📥 Import CSV/Excel", command=self.import_file, width=30).pack(pady=2)
-        ttk.Button(button_frame, text="🗑️ Delete All Data", command=self.delete_all_data, width=30).pack(pady=2)
-
-        self.tree = ttk.Treeview(self, columns=("name", "source", "sold", "date"), show="headings", height=10)
-        for col, width in zip(["name", "source", "sold", "date"], [200, 100, 100, 150]):
-            self.tree.heading(col, text=col.capitalize())
-            self.tree.column(col, anchor="center", width=width)
-
-        self.tree.pack(fill="both", expand=True, pady=10)
-        ttk.Button(self, text="❌ Delete Selected", command=self.delete_selected).pack(pady=5)
 
     def add_item(self):
+        name = self.name_var.get().strip()
+        source_price = self.source_var.get().strip()
+        sold_price = self.sold_var.get().strip()
+        date = self.date_var.get().strip()
+
         try:
-            name = self.name_var.get()
-            source = float(self.source_var.get())
-            sold = float(self.sold_var.get())
-            date = self.date_var.get().strip()
-            datetime.strptime(date, "%Y-%m-%d")
-            self.db.insert_item(name, source, sold, date)
-        except Exception:
-            messagebox.showerror("Error", "Please enter valid inputs.")
+            source = float(source_price)
+            sold = float(sold_price) if sold_price else 0.0
+        except ValueError:
+            messagebox.showerror("Error", "Prices must be valid numbers.")
             return
 
-        self.clear_inputs()
-        self.load_items()
+        if not name or not date:
+            messagebox.showerror("Error", "Name and Date are required.")
+            return
 
-    def clear_inputs(self):
-        for var in (self.name_var, self.source_var, self.sold_var, self.date_var):
-            var.set("")
+        try:
+            datetime.strptime(date, "%Y-%m-%d")
+        except ValueError:
+            messagebox.showerror("Error", "Date must be in YYYY-MM-DD format.")
+            return
+
+        self.db.insert_item(name, source, sold, date)
+        self.load_items()
+        self.clear_form()
+
+    def clear_form(self):
+        self.name_var.set("")
+        self.source_var.set("")
+        self.sold_var.set("")
+        self.date_var.set(datetime.today().strftime("%Y-%m-%d"))
 
     def load_items(self):
-        for i in self.tree.get_children():
-            self.tree.delete(i)
-        for row in self.db.fetch_items():
-            self.tree.insert("", "end", values=row)
+        for widget in self.list_frame.winfo_children():
+            widget.destroy()
 
-    def import_file(self):
-        file_path = filedialog.askopenfilename(
-            filetypes=[("CSV files", "*.csv"), ("Excel files", "*.xlsx")]
-        )
-        if not file_path:
+        data = self.db.fetch_items()
+        if not data:
+            ttk.Label(self.list_frame, text="No items in inventory.").pack()
             return
 
-        try:
-            df = pd.read_csv(file_path) if file_path.endswith(".csv") else pd.read_excel(file_path)
+        tree = ttk.Treeview(self.list_frame, columns=("Name", "Source", "Sold", "Date"), show="headings")
+        tree.heading("Name", text="Item Name")
+        tree.heading("Source", text="Source Price")
+        tree.heading("Sold", text="Sold Price")
+        tree.heading("Date", text="Date")
 
-            required_cols = {"name", "source_price", "sold_price", "date"}
-            if not required_cols.issubset(df.columns):
-                raise Exception("Missing required columns: name, source_price, sold_price, date.")
+        for row in data:
+            tree.insert("", "end", values=row)
 
-            added = 0
-            skipped = 0
-            for _, row in df.iterrows():
-                success = self.db.insert_item(
-                    row["name"], float(row["source_price"]), float(row["sold_price"]), row["date"]
-                )
-                if success:
-                    added += 1
-                else:
-                    skipped += 1
-
-            self.load_items()
-            messagebox.showinfo("Import Complete", f"Imported {added} new items.\nSkipped {skipped} duplicate(s).")
-
-        except Exception as e:
-            messagebox.showerror("Import Failed", str(e))
-
-    def delete_all_data(self):
-        if messagebox.askyesno("Confirm", "Delete all items?"):
-            self.db.delete_all_items()
-            self.load_items()
-
-    def delete_selected(self):
-        selected = self.tree.selection()
-        if not selected:
-            messagebox.showwarning("No Selection", "Select a row to delete.")
-            return
-        if messagebox.askyesno("Delete", "Delete selected item(s)?"):
-            for item in selected:
-                name, source, sold, date = self.tree.item(item, "values")
-                self.db.delete_item(name, float(source), float(sold), date)
-            self.load_items()
+        tree.pack(fill="both", expand=True)

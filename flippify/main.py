@@ -4,6 +4,8 @@ import sv_ttk
 from item_tracker import ItemTracker
 from profit_logs import ProfitLogs
 from analytics_dashboard import AnalyticsDashboard
+from inventory import InventoryTab
+
 
 class FlippifyApp(tk.Tk):
     def __init__(self):
@@ -11,9 +13,10 @@ class FlippifyApp(tk.Tk):
         self.title("Flippify")
         self.geometry("1000x600")
         self.minsize(800, 1000)
-        self.iconbitmap("assets/Icon.ico")
+        self.iconbitmap(r"C:\Users\Yobi\Desktop\FlippifyApp\flippify\assets\Icon.ico")
+        
 
-        sv_ttk.set_theme("light")
+        sv_ttk.set_theme("dark")
 
         self.navbar = ttk.Frame(self, padding=10)
         self.navbar.pack(side="top", fill="x")
@@ -21,6 +24,8 @@ class FlippifyApp(tk.Tk):
         ttk.Button(self.navbar, text="📦 Items", command=self.show_items).pack(side="left", padx=10)
         ttk.Button(self.navbar, text="💵 Profits", command=self.show_profits).pack(side="left", padx=10)
         ttk.Button(self.navbar, text="📊 Analytics", command=self.show_analytics).pack(side="left", padx=10)
+        ttk.Button(self.navbar, text="📥 Inventory", command=self.show_inventory).pack(side="left", padx=10)
+
 
         self.content = ttk.Frame(self, padding=20)
         self.content.pack(fill="both", expand=True)
@@ -45,6 +50,10 @@ class FlippifyApp(tk.Tk):
     def show_analytics(self):
         self.clear_frame()
         self.current_frame = AnalyticsDashboard(self.content)
+        self.current_frame.pack(fill="both", expand=True)
+    def show_inventory(self):
+        self.clear_frame()
+        self.current_frame = InventoryTab(self.content)
         self.current_frame.pack(fill="both", expand=True)
 
 if __name__ == "__main__":
