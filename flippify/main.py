@@ -13,7 +13,7 @@ class FlippifyApp(tk.Tk):
         self.title("Flippify")
         self.geometry("1000x600")
         self.minsize(800, 1000)
-        self.iconbitmap(r"Icon.ico")
+        self.iconbitmap("Icon.ico")
         
 
         sv_ttk.set_theme("dark")
