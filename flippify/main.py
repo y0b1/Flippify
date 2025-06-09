@@ -15,15 +15,15 @@ class FlippifyApp(tk.Tk):
         self.minsize(1200, 850)
 
         self.configure(bg='#1a1a1a')
-        self.overrideredirect(True)  # Remove system title bar
+        self.overrideredirect(True)
 
-        # Fullscreen state
+
         self.is_fullscreen = False
         self.last_geometry = "1200x700+100+100"
 
         self.setup_custom_titlebar()
 
-        # Set icon
+        
         icon_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Icon.ico")
         if os.path.exists(icon_path):
             try:
@@ -36,18 +36,18 @@ class FlippifyApp(tk.Tk):
             except tk.TclError:
                 print("Warning: Could not load icon Icon.ico")
 
-        # Apply dark theme
+        
         sv_ttk.set_theme("dark")
 
-        # Create main container
+        
         self.main_container = ttk.Frame(self)
         self.main_container.pack(fill="both", expand=True)
 
-        # Setup modern UI
+        
         self.setup_sidebar()
         self.setup_content_area()
 
-        # Initialize with first tab
+        
         self.current_frame = None
         self.active_button = None
         self.show_items()
@@ -64,7 +64,7 @@ class FlippifyApp(tk.Tk):
         self.title_bar.pack(fill="x", side="top")
         self.title_bar.pack_propagate(False)
 
-        # Title
+        
         title_label = tk.Label(
             self.title_bar,
             text="Flippify",
@@ -74,11 +74,11 @@ class FlippifyApp(tk.Tk):
         )
         title_label.pack(side="left", padx=15, pady=8)
 
-        # Window controls
+        
         controls_frame = tk.Frame(self.title_bar, bg='#181818')
         controls_frame.pack(side="right", pady=5, padx=5)
 
-        # Fullscreen button
+        
         fullscreen_btn = tk.Button(
             controls_frame,
             text="⛶",
@@ -93,7 +93,7 @@ class FlippifyApp(tk.Tk):
         )
         fullscreen_btn.pack(side="left", padx=2)
 
-        # Close button
+        
         close_btn = tk.Button(
             controls_frame,
             text="✕",
@@ -108,7 +108,7 @@ class FlippifyApp(tk.Tk):
         )
         close_btn.pack(side="left", padx=2)
 
-        # Make title bar draggable
+        
         self.title_bar.bind("<Button-1>", self.start_move)
         self.title_bar.bind("<B1-Motion>", self.on_move)
         self.title_bar.bind("<Double-Button-1>", self.toggle_fullscreen)
@@ -131,12 +131,11 @@ class FlippifyApp(tk.Tk):
     def toggle_fullscreen(self, event=None):
         """Toggle between fullscreen and windowed mode"""
         if self.is_fullscreen:
-            # Exit fullscreen
             self.is_fullscreen = False
             self.geometry(self.last_geometry)
 
         else:
-            # Enter fullscreen
+            
             self.last_geometry = self.geometry()
             self.is_fullscreen = True
             self.geometry(f"{self.winfo_screenwidth()}x{self.winfo_screenheight()}+0+0")
@@ -147,7 +146,7 @@ class FlippifyApp(tk.Tk):
         self.sidebar.pack(side="left", fill="y")
         self.sidebar.pack_propagate(False)
 
-        # Logo/Header area
+        
         header_frame = tk.Frame(self.sidebar, bg='#181818', height=80)
         header_frame.pack(fill="x", pady=20)
         header_frame.pack_propagate(False)
@@ -161,7 +160,7 @@ class FlippifyApp(tk.Tk):
         )
         logo_label.pack(pady=15)
 
-        # Navigation buttons
+        
         nav_frame = tk.Frame(self.sidebar, bg='#181818')
         nav_frame.pack(fill="both", expand=True, padx=15, pady=10)
 
@@ -192,23 +191,23 @@ class FlippifyApp(tk.Tk):
             btn.pack(fill="x", pady=2)
             self.nav_buttons.append(btn)
 
-            # Add hover effects
+            
             btn.bind("<Enter>", lambda e, b=btn: self.on_nav_hover(b, True))
             btn.bind("<Leave>", lambda e, b=btn: self.on_nav_hover(b, False))
 
     def on_nav_hover(self, button, is_hover):
         if button != self.active_button:
             if is_hover:
-                button.config(bg='#5dade2')  # Light blue hover color
+                button.config(bg='#5dade2')  
             else:
                 button.config(bg='#181818')
 
     def set_active_button(self, button):
-        # Reset all buttons
+        
         for btn in self.nav_buttons:
             btn.config(bg='#181818', fg='#ffffff')
 
-        # Set active button
+        
         button.config(bg='#3498db', fg='#ffffff')  # Changed from #4CAF50 to light blue
         self.active_button = button
 
@@ -217,7 +216,7 @@ class FlippifyApp(tk.Tk):
         self.content_container = tk.Frame(self.main_container, bg='#1a1a1a')
         self.content_container.pack(side="right", fill="both", expand=True)
 
-        # Content frame with padding
+        
         self.content = ttk.Frame(self.content_container)
         self.content.pack(fill="both", expand=True, padx=30, pady=20)
 

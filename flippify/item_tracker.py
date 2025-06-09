@@ -426,8 +426,6 @@ class ItemTracker(ttk.Frame):
         self.load_items()
         self.clear_form()
 
-        # Show success message
-        messagebox.showinfo("Success", f"Item '{name}' added successfully!")
 
     def clear_form(self):
         self.name_var.set("")
