@@ -7,6 +7,7 @@ from analytics_dashboard import AnalyticsDashboard
 from inventory import InventoryTab
 
 
+
 class FlippifyApp(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -169,7 +170,8 @@ class FlippifyApp(tk.Tk):
         nav_items = [
             ("📦 Item Tracker", self.show_items),
             ("📊 Analytics", self.show_analytics),
-            ("📥 Inventory", self.show_inventory)
+            ("📥 Inventory", self.show_inventory),
+            ("📄 Profit Report", self.show_profit_report)
         ]
 
         for text, command in nav_items:
@@ -244,6 +246,15 @@ class FlippifyApp(tk.Tk):
         self.current_frame.pack(fill="both", expand=True)
         if self.nav_buttons:
             self.set_active_button(self.nav_buttons[2])
+
+    def show_profit_report(self):
+        self.clear_frame()
+        from profit_report import ProfitReportTab
+        self.current_frame = ProfitReportTab(self.content)
+        self.current_frame.pack(fill="both", expand=True)
+        if self.nav_buttons:
+            self.set_active_button(self.nav_buttons[3])  # Adjust index if needed
+
 
 
 if __name__ == "__main__":
