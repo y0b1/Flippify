@@ -43,18 +43,12 @@ class ProfitReportTab(ttk.Frame):
         row1.pack(fill="x", pady=(0, 10))
 
         ttk.Label(row1, text="Period:", font=("Segoe UI", 10)).pack(side="left")
-        self.report_type = tk.StringVar(value="Day")
+        self.report_type = tk.StringVar(value="All")
         period_combo = ttk.Combobox(row1, textvariable=self.report_type,
-                                    values=["Day", "Week", "Month", "Year"],
+                                    values=["All", "Week", "Month", "Year"],
                                     state="readonly", width=12)
         period_combo.pack(side="left", padx=(10, 30))
         period_combo.bind("<<ComboboxSelected>>", self.update_report)
-
-        ttk.Label(row1, text="Date:", font=("Segoe UI", 10)).pack(side="left")
-        self.date_entry = ttk.Entry(row1, width=15, font=("Segoe UI", 10))
-        self.date_entry.insert(0, datetime.now().strftime('%Y-%m-%d'))
-        self.date_entry.pack(side="left", padx=(10, 0))
-        self.date_entry.bind("<KeyRelease>", self.update_report)
 
         # Metrics display
         self.metrics_frame = ttk.LabelFrame(main_container, text="Key Metrics", padding=20)
@@ -65,23 +59,18 @@ class ProfitReportTab(ttk.Frame):
         for widget in self.metrics_frame.winfo_children():
             widget.destroy()
 
-        try:
-            selected_date = datetime.strptime(self.date_entry.get(), '%Y-%m-%d')
-        except ValueError:
-            ttk.Label(self.metrics_frame, text="⚠️ Invalid date format. Use YYYY-MM-DD",
-                      foreground="red").pack()
-            return
-
         # Calculate date range
         report_type = self.report_type.get()
-        if report_type == "Day":
-            start_date = selected_date
-        elif report_type == "Week":
-            start_date = selected_date - timedelta(days=selected_date.weekday())
+        current_date = datetime.now()
+
+        if report_type == "Week":
+            start_date = current_date - timedelta(days=7)
         elif report_type == "Month":
-            start_date = selected_date.replace(day=1)
-        else:  # Year
-            start_date = selected_date.replace(month=1, day=1)
+            start_date = current_date - timedelta(days=30)
+        elif report_type == "Year":
+            start_date = current_date - timedelta(days=365)
+        else:  # All
+            start_date = None
 
         # Process data
         self.filtered_items = []
@@ -89,12 +78,15 @@ class ProfitReportTab(ttk.Frame):
 
         for name, source, sold, date_str in self.db.fetch_items():
             try:
-                if sold > 0 and datetime.strptime(date_str, "%Y-%m-%d") >= start_date:
-                    self.filtered_items.append((name, source, sold, date_str))
-                    metrics["cost"] += source
-                    metrics["revenue"] += sold
-                    metrics["profit"] += (sold - source)
-                    metrics["count"] += 1
+                if sold > 0:
+                    item_date = datetime.strptime(date_str, "%Y-%m-%d")
+                    # Include item if no date filter or within date range
+                    if start_date is None or item_date >= start_date:
+                        self.filtered_items.append((name, source, sold, date_str))
+                        metrics["cost"] += source
+                        metrics["revenue"] += sold
+                        metrics["profit"] += (sold - source)
+                        metrics["count"] += 1
             except:
                 continue
 
