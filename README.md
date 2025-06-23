@@ -22,6 +22,7 @@ Flippify is a desktop app to help you track buying and selling of items, monitor
 - Tkinter (usually included with Python)
 - `matplotlib` for analytics charts (`pip install matplotlib`)
 - `sv_ttk` for modern theming (`pip install sv_ttk`)
+- `python-docx matplotlib` For creating Word documents (`pip install python-docx matplotlib`)
 - `openpyxl` for Excel file handling (if import is implemented) (`pip install openpyxl`)
 
 ---
