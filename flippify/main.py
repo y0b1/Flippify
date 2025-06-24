@@ -19,7 +19,7 @@ class FlippifyApp(tk.Tk):
         self.overrideredirect(True)
 
 
-        self.is_fullscreen = False
+
         self.last_geometry = "1200x700+100+100"
 
         self.setup_custom_titlebar()
