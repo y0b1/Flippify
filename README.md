@@ -1,4 +1,4 @@
-# Flippify - Flip Item Tracker & Analytics
+<img width="1178" height="821" alt="image" src="https://github.com/user-attachments/assets/f50f334a-4be7-4fc2-b524-ad9598a0cf11" /># Flippify - Flip Item Tracker & Analytics
 
 Flippify is a desktop app to help you track buying and selling of items, monitor profits, view analytics, and manage your inventory of unsold items.
 
@@ -14,6 +14,8 @@ Flippify is a desktop app to help you track buying and selling of items, monitor
 
 ---
 ![image alt](https://github.com/y0b1/Flippify/blob/master/image%20(3).png?raw=true)
+![image alt](https://github.com/y0b1/Flippify/blob/master/image%20(1).png?raw=true)
+![image alt](https://github.com/y0b1/Flippify/blob/master/image%20(2).png?raw=true)
 
 
 ---
