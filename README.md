@@ -13,6 +13,10 @@ Flippify is a desktop app to help you track buying and selling of items, monitor
 - Import item data from Excel files for easy bulk entry.
 
 ---
+![image alt](https://github.com/y0b1/Flippify/blob/master/image%20(3).png?raw=true)
+
+
+---
 
 ## Getting Started
 
