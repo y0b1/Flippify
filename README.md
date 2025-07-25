@@ -1,4 +1,4 @@
-Flippify - Flip Item Tracker & Analytics
+# Flippify - Flip Item Tracker & Analytics
 
 Flippify is a desktop app to help you track buying and selling of items, monitor profits, view analytics, and manage your inventory of unsold items.
 
