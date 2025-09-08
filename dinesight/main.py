@@ -15,7 +15,6 @@ class DineSightApp(tk.Tk):
         self.center_window(1200, 700)
         self.minsize(1600, 1070)
 
-        # Theme
         self.colors = {
             # Core whites and grays
             'background': '#ffffff',
