@@ -27,7 +27,7 @@ Originally derived from **Flippify**, DineSight is repurposed to help restaurant
 
 | Component | Description |
 |------------|-------------|
-| **Language** | Python 3.x |
+| **Language** | Python 3 |
 | **Framework** | Tkinter (GUI) |
 | **Database** | SQLite3 |
 | **Themes** | sv_ttk for modern UI styling |
