@@ -3,7 +3,8 @@ from tkinter import ttk
 import sv_ttk
 import os
 from MenuTracker import MenuTracker
-from SalesAnalytics import SalesAnalytics
+from Dashboard import Dashboard
+from SalesLogger import SalesLogger
 from InventoryManagement import InventoryManagement
 from TrendsAnalysis import TrendsAnalysis
 
@@ -13,45 +14,34 @@ class DineSightApp(tk.Tk):
         super().__init__()
         self.title("DineSight")
         self.center_window(1200, 700)
-        self.minsize(1600, 1070)
 
         self.colors = {
-            # Core whites and grays
             'background': '#ffffff',
             'surface': '#ffffff',
             'surface_hover': '#fafbfc',
             'surface_pressed': '#f4f6f8',
             'border': '#e1e5e9',
             'border_subtle': '#f0f3f6',
-
-            # Text hierarchy
             'text_primary': '#1a1d21',
             'text_secondary': '#6b7280',
             'text_muted': '#9ca3af',
             'text_disabled': '#d1d5db',
-
-            # Single accent color system
             'accent': '#3b82f6',
             'accent_light': '#eff6ff',
             'accent_lighter': '#f8faff',
             'accent_hover': '#2563eb',
             'accent_pressed': '#1d4ed8',
-
-            # Functional colors
             'success': '#10b981',
             'success_light': '#ecfdf5',
             'warning': '#f59e0b',
             'warning_light': '#fffbeb',
             'error': '#ef4444',
             'error_light': '#fef2f2',
-
-            # Sidebar specific
             'sidebar_bg': '#ffffff',
             'sidebar_border': '#f0f3f6',
         }
 
         self.configure(bg=self.colors['background'])
-        self.last_geometry = "1200x700+100+100"
         self.load_icon()
         self.setup_theme()
         self.main_container = ttk.Frame(self)
@@ -62,11 +52,11 @@ class DineSightApp(tk.Tk):
 
         self.current_frame = None
         self.active_button = None
-        self.current_indicator = None  # Track the current indicator
-        self.show_menu_tracker()
+        self.current_indicator = None
+
+        self.show_dashboard()
 
     def load_icon(self):
-        """Load application icon with proper error handling"""
         icon_paths = [
             os.path.join(os.path.dirname(os.path.abspath(__file__)), "DineSight.ico"),
             "DineSight.ico"
@@ -80,7 +70,6 @@ class DineSightApp(tk.Tk):
                     continue
 
     def setup_theme(self):
-        """Configure professional theme with custom styles"""
         try:
             sv_ttk.set_theme("light")
         except:
@@ -92,7 +81,6 @@ class DineSightApp(tk.Tk):
         self.style.configure('Card.TFrame', background=self.colors['surface'], relief='flat', borderwidth=1)
 
     def center_window(self, width, height):
-        """Center window on screen"""
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
         x = (screen_width // 2) - (width // 2)
@@ -100,7 +88,6 @@ class DineSightApp(tk.Tk):
         self.geometry(f"{width}x{height}+{x}+{y}")
 
     def setup_sidebar(self):
-        """Create sidebar"""
         self.sidebar = tk.Frame(self.main_container, bg=self.colors['sidebar_bg'], width=280)
         self.sidebar.pack(side="left", fill="y")
         self.sidebar.pack_propagate(False)
@@ -113,7 +100,6 @@ class DineSightApp(tk.Tk):
         self.create_sidebar_footer()
 
     def create_sidebar_header(self):
-        """Sidebar header with branding"""
         header_frame = tk.Frame(self.sidebar, bg=self.colors['sidebar_bg'], height=140)
         header_frame.pack(fill="x", pady=(40, 30))
         header_frame.pack_propagate(False)
@@ -134,27 +120,28 @@ class DineSightApp(tk.Tk):
         subtitle_label.pack(pady=(8, 0))
 
     def create_navigation(self):
-        """Sidebar navigation buttons"""
         nav_frame = tk.Frame(self.sidebar, bg=self.colors['sidebar_bg'])
         nav_frame.pack(fill="both", expand=True, padx=20, pady=20)
 
         self.nav_buttons = []
-        self.nav_containers = []  # Track button containers
+        self.nav_containers = []
+
         nav_items = [
-            ("🍽️", "Menu Tracker", self.show_menu_tracker),
-            ("📊", "Sales Analytics", self.show_sales_analytics),
-            ("📦", "Inventory", self.show_inventory),
-            ("📈", "Trends & Insights", self.show_trends)
+            ("Dashboard", self.show_dashboard),
+            ("Menu Tracker", self.show_menu_tracker),
+            ("Inventory", self.show_inventory),
+            ("Sales Logger", self.show_sales_logger),
+            ("Trends & Insights", self.show_trends)
         ]
 
-        for icon, text, command in nav_items:
+        for text, command in nav_items:
             btn_container = tk.Frame(nav_frame, bg=self.colors['sidebar_bg'])
             btn_container.pack(fill="x", pady=4)
             self.nav_containers.append(btn_container)
 
             btn = tk.Button(
                 btn_container,
-                text=f"  {icon}   {text}",
+                text=text,
                 bg=self.colors['sidebar_bg'],
                 fg=self.colors['text_primary'],
                 font=("Segoe UI", 12),
@@ -170,31 +157,23 @@ class DineSightApp(tk.Tk):
             btn.pack(fill="x")
             self.nav_buttons.append(btn)
 
-            # Assign command AFTER button exists
             btn.configure(command=lambda c=command, b=btn: self.on_nav_select(c, b))
-
-            # Hover effects
             btn.bind("<Enter>", lambda e, b=btn: self.on_nav_hover_enter(b))
             btn.bind("<Leave>", lambda e, b=btn: self.on_nav_hover_leave(b))
 
     def on_nav_hover_enter(self, button):
-        """Hover enter effect (inactive buttons only)"""
         if button != self.active_button:
             button.configure(bg=self.colors['surface_hover'], fg=self.colors['accent'])
 
     def on_nav_hover_leave(self, button):
-        """Hover leave effect (inactive buttons only)"""
         if button != self.active_button:
             button.configure(bg=self.colors['sidebar_bg'], fg=self.colors['text_primary'])
 
     def on_nav_select(self, command, button):
-        """Handle navigation selection"""
         command()
         self.set_active_button(button)
 
     def set_active_button(self, button):
-        """Set the selected button as active"""
-        # Reset all inactive buttons
         for btn in self.nav_buttons:
             if btn != button:
                 btn.configure(
@@ -202,42 +181,30 @@ class DineSightApp(tk.Tk):
                     fg=self.colors['text_primary'],
                     font=("Segoe UI", 12)
                 )
-
-        # Apply active style
         button.configure(
             bg=self.colors['accent_light'],
             fg=self.colors['accent'],
             font=("Segoe UI", 12, "bold")
         )
-
         self.highlight_active_nav(button)
         self.active_button = button
 
     def highlight_active_nav(self, button):
-        """Blue left border for active nav"""
-        # Remove existing indicator
         if self.current_indicator:
             self.current_indicator.destroy()
             self.current_indicator = None
 
-        # Find the button's container
         button_container = button.master
-
-        # Update the display to ensure proper dimensions
         button_container.update_idletasks()
 
-        # Create new indicator
         self.current_indicator = tk.Frame(
             button_container,
             bg=self.colors['accent'],
             width=4
         )
-
-        # Place the indicator on the left edge
         self.current_indicator.place(x=0, y=0, relheight=1.0)
 
     def create_sidebar_footer(self):
-        """Sidebar footer with status"""
         footer_frame = tk.Frame(self.sidebar, bg=self.colors['sidebar_bg'], height=120)
         footer_frame.pack(side="bottom", fill="x")
         footer_frame.pack_propagate(False)
@@ -265,40 +232,77 @@ class DineSightApp(tk.Tk):
     def setup_content_area(self):
         self.content_container = tk.Frame(self.main_container, bg=self.colors['background'])
         self.content_container.pack(side="right", fill="both", expand=True)
-        self.content = ttk.Frame(self.content_container)
-        self.content.pack(fill="both", expand=True, padx=40, pady=40)
+
+        self.canvas = tk.Canvas(self.content_container, bg=self.colors['background'], highlightthickness=0)
+        self.scrollbar = ttk.Scrollbar(self.content_container, orient="vertical", command=self.canvas.yview)
+
+        self.scrollable_frame = ttk.Frame(self.canvas)
+
+        self.scrollable_frame.bind(
+            "<Configure>",
+            lambda e: self.canvas.configure(
+                scrollregion=self.canvas.bbox("all")
+            )
+        )
+
+        def set_frame_width(event):
+            self.canvas.itemconfig(self.canvas_window, width=event.width)
+
+        self.canvas.bind("<Configure>", set_frame_width)
+
+        self.canvas_window = self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+        self.canvas.configure(yscrollcommand=self.scrollbar.set)
+
+        self.canvas.pack(side="left", fill="both", expand=True)
+        self.scrollbar.pack(side="right", fill="y")
+
+        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
+
+    def _on_mousewheel(self, event):
+        if self.scrollbar.winfo_manager():  # Only scroll if scrollbar is visible
+            self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
     def clear_frame(self):
         if self.current_frame:
             self.current_frame.destroy()
 
-    def show_menu_tracker(self):
+        self.current_frame = ttk.Frame(self.scrollable_frame, padding=(40, 40))
+        self.current_frame.pack(fill="x", expand=True, anchor="n")
+
+    def show_sales_logger(self):
         self.clear_frame()
-        self.current_frame = MenuTracker(self.content)
-        self.current_frame.pack(fill="both", expand=True)
+        content = SalesLogger(self.current_frame)
+        content.pack(fill="both", expand=True)
+        if self.nav_buttons:
+            self.set_active_button(self.nav_buttons[3])
+
+    def show_dashboard(self):
+        self.clear_frame()
+        content = Dashboard(self.current_frame)
+        content.pack(fill="both", expand=True)
         if self.nav_buttons:
             self.set_active_button(self.nav_buttons[0])
 
-    def show_sales_analytics(self):
+    def show_menu_tracker(self):
         self.clear_frame()
-        self.current_frame = SalesAnalytics(self.content)
-        self.current_frame.pack(fill="both", expand=True)
+        content = MenuTracker(self.current_frame)
+        content.pack(fill="both", expand=True)
         if self.nav_buttons:
             self.set_active_button(self.nav_buttons[1])
 
     def show_inventory(self):
         self.clear_frame()
-        self.current_frame = InventoryManagement(self.content)
-        self.current_frame.pack(fill="both", expand=True)
+        content = InventoryManagement(self.current_frame)
+        content.pack(fill="both", expand=True)
         if self.nav_buttons:
             self.set_active_button(self.nav_buttons[2])
 
     def show_trends(self):
         self.clear_frame()
-        self.current_frame = TrendsAnalysis(self.content)
-        self.current_frame.pack(fill="both", expand=True)
+        content = TrendsAnalysis(self.current_frame)
+        content.pack(fill="both", expand=True)
         if self.nav_buttons:
-            self.set_active_button(self.nav_buttons[3])
+            self.set_active_button(self.nav_buttons[4])
 
 
 if __name__ == "__main__":
